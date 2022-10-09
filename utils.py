@@ -1,7 +1,10 @@
 import os
 import sys
 import time
-
+import math
+import warnings
+import torch
+import logging
 
 def format_time(seconds):
     days = int(seconds / 3600/24)
@@ -129,3 +132,23 @@ def trunc_normal_(tensor, mean=0., std=1., a=-2., b=2.):
     # type: (Tensor, float, float, float, float) -> Tensor
     return _no_grad_trunc_normal_(tensor, mean, std, a, b)
 
+def cycle(iterable):
+    while True:
+        for x in iterable:
+            yield x
+
+def get_logger(out_dir):
+    logger = logging.getLogger('Exp')
+    logger.setLevel(logging.INFO)
+    formatter = logging.Formatter("%(asctime)s %(levelname)s %(message)s")
+
+    file_path = os.path.join(out_dir, "run.log")
+    file_hdlr = logging.FileHandler(file_path)
+    file_hdlr.setFormatter(formatter)
+
+    strm_hdlr = logging.StreamHandler(sys.stdout)
+    strm_hdlr.setFormatter(formatter)
+
+    logger.addHandler(file_hdlr)
+    logger.addHandler(strm_hdlr)
+    return logger
