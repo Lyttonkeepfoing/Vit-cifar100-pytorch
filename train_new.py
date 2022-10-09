@@ -13,7 +13,7 @@ from utils import progress_bar
 wandb.init(project="new-train-cifar100")
 wandb.watch_called = False  # Re-run the model without restarting the runtime, unnecessary after our next release
 config = wandb.config
-
+torch.manual_seed(42)
 ###### args ######
 parser = argparse.ArgumentParser(description='vit CIFAR10 Training')
 parser.add_argument('--batch_size', default='512', type=int)
