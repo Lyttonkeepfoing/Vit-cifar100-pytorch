@@ -5,7 +5,8 @@ import math
 import warnings
 import torch
 import logging
-
+from PIL import ImageFilter, ImageOps
+import random
 def format_time(seconds):
     days = int(seconds / 3600/24)
     seconds = seconds - days*3600*24
@@ -152,3 +153,33 @@ def get_logger(out_dir):
     logger.addHandler(file_hdlr)
     logger.addHandler(strm_hdlr)
     return logger
+
+# class GaussianBlur(object):
+#     """
+#     Apply Gaussian Blur to the PIL image.
+#     """
+#     def __init__(self, p=0.5, radius_min=0.1, radius_max=2.):
+#         self.prob = p
+#         self.radius_min = radius_min
+#         self.radius_max = radius_max
+#
+#     def __call__(self, img):
+#         do_it = random.random() <= self.prob
+#         if not do_it:
+#             return img
+#
+#         return img.filter(
+#             ImageFilter.GaussianBlur(
+#                 radius=random.uniform(self.radius_min, self.radius_max)
+#             )
+#         )
+def clip_gradients(model, clip):
+    norms = []
+    for name, p in model.named_parameters():
+        if p.grad is not None:
+            param_norm = p.grad.data.norm(2)
+            norms.append(param_norm.item())
+            clip_coef = clip / (param_norm + 1e-6)
+            if clip_coef < 1:
+                p.grad.data.mul_(clip_coef)
+    return norms
