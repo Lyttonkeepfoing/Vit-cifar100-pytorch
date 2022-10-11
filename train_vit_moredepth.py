@@ -1,4 +1,4 @@
-# batch_size 32
+# batch_size 32 wandb_name  azure-planet-66 iter 150000 train_acc 48.47153 train_loss 2.03518 val_acc 58.03356 val_loss 1.71289
 import torch.optim as optim
 import torch.backends.cudnn as cudnn
 import wandb

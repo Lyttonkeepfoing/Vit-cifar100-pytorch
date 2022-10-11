@@ -14,6 +14,7 @@ import json
 from timm.data import create_transform
 from aug import RandAugment
 from model import ViT
+from PIL import Image
 best_acc = 0  # best test accuracy
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 ###### args ######
@@ -36,19 +37,19 @@ logger.info(json.dumps(vars(args), indent=4, sort_keys=True))
 # ])
 
 
-transform_train = create_transform(
-            input_size=args.input_size,
-            is_training=True,
-            color_jitter=args.color_jitter,
-            auto_augment=args.aa,
-            interpolation=args.train_interpolation,
-            re_prob=args.reprob,
-            re_mode=args.remode,
-            re_count=args.recount,
-        )
+# transform_train = create_transform(
+#             input_size=args.input_size,
+#             is_training=True,
+#             color_jitter=args.color_jitter,
+#             auto_augment=args.aa,
+#             interpolation=args.train_interpolation,
+#             re_prob=args.reprob,
+#             re_mode=args.remode,
+#             re_count=args.recount,
+#         )
 
 
-transform_train.transforms[0] = transforms.Compose([
+transform_train = transforms.Compose([
     transforms.Resize(int(args.input_size / args.eval_crop_ratio), interpolation=3),  # to maintain same ratio w.r.t. 224 images
     transforms.CenterCrop(args.input_size),
     transforms.ToTensor(),

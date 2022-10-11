@@ -1,4 +1,5 @@
-# batch_size 32 wandb_name ruby-capybara-72  Iter 112000 val_loss. 2.58394 	 val_acc. 48.34325 train_loss. 0.70545 	 train_acc. 81.02346
+# batch_size 256 Iter 32000 : 	 val_loss. 1.55306 	 val_acc. 59.43745 train_loss. 2.10715 	 train_acc. 49.09925
+# vit no aug 50000
 import torch.optim as optim
 import torch.backends.cudnn as cudnn
 import wandb
@@ -13,6 +14,7 @@ import options
 import json
 from aug import RandAugment
 from model import ViT
+from timm.loss import LabelSmoothingCrossEntropy, SoftTargetCrossEntropy
 best_acc = 0  # best test accuracy
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 ###### args ######
@@ -20,7 +22,7 @@ args = options.get_args_parser()
 torch.manual_seed(42)
 
 ###### wandb ######
-wandb.init(project="new-train-cifar100")
+wandb.init(project="label-smoothing")
 wandb.watch_called = False  # Re-run the model without restarting the runtime, unnecessary after our next release
 config = wandb.config
 logger = utils.get_logger(args.out_dir)
@@ -28,15 +30,13 @@ logger.info(json.dumps(vars(args), indent=4, sort_keys=True))
 
 ###### dataloader no aug######
 transform_train = transforms.Compose([
-    transforms.RandomResizedCrop(224),
+    transforms.RandomCrop(32, padding=4),
     transforms.RandomHorizontalFlip(),
     transforms.ToTensor(),
     transforms.Normalize((0.5070751592371323, 0.48654887331495095, 0.4409178433670343), (0.2673342858792401, 0.2564384629170883, 0.27615047132568404)),
 ])
-# transform_train.transforms.insert(0, RandAugment(2, 14))
+transform_train.transforms.insert(0, RandAugment(2, 14))
 transform_test = transforms.Compose([
-    transforms.Resize(256, interpolation=3),
-    transforms.CenterCrop(224),
     transforms.ToTensor(),
     transforms.Normalize((0.5070751592371323, 0.48654887331495095, 0.4409178433670343), (0.2673342858792401, 0.2564384629170883, 0.27615047132568404)),
 ])
@@ -57,17 +57,17 @@ valloader_iter = utils.cycle(valloader)
 
 
 ###### Network ######
-net = vit_tiny()
-# net = ViT(
-#     image_size = 32,
-#     patch_size = 4,
-#     num_classes = 100,
-#     dim = 512,
-#     depth = 6,
-#     heads = 8,
-#     mlp_dim = 512,
-#     dropout = 0.1,
-#     emb_dropout = 0.1)
+# net = vit_tiny()
+net = ViT(
+    image_size = 32,
+    patch_size = 4,
+    num_classes = 100,
+    dim = 512,
+    depth = 6,
+    heads = 8,
+    mlp_dim = 512,
+    dropout = 0.1,
+    emb_dropout = 0.1)
 print('==> Building model..', net)
 
 if args.resume_pth :
@@ -83,8 +83,10 @@ if device == 'cuda':
     cudnn.benchmark = True
 
 ###### optim ######
-criterion = nn.CrossEntropyLoss()
-
+# criterion = nn.CrossEntropyLoss()
+criterion = LabelSmoothingCrossEntropy(smoothing=args.smoothing)
+# criterion = SoftTargetCrossEntropy()
+# criterion = torch.nn.BCEWithLogitsLoss()
 if args.opt == "adam":
     optimizer = optim.Adam(net.parameters(), lr=args.lr)
 elif args.opt == "sgd":

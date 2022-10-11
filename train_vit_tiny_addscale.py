@@ -1,4 +1,4 @@
-# batch_size 32
+# batch_size 32 Eval. Iter 79500 : 	 val_loss. 2.50855 	 val_acc. 49.63857 Train. Iter 79500 : 	 train_loss. 0.25223 	 train_acc. 92.85507
 import torch.optim as optim
 import torch.backends.cudnn as cudnn
 import wandb

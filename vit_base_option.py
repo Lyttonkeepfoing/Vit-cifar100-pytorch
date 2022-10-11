@@ -2,7 +2,7 @@ import argparse
 
 def get_args_parser():
     parser = argparse.ArgumentParser(description='vit_base CIFAR100 Training', add_help=True, formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    parser.add_argument('--batch_size', default='32', type=int)
+    parser.add_argument('--batch_size', default='16', type=int)
     parser.add_argument('--lr', default=0.003, type=float, help='learning rate')
     parser.add_argument('--opt', default="adamW")
     parser.add_argument('--nb_iter', type=int, default='150000')
@@ -30,5 +30,5 @@ def get_args_parser():
                         help='Random erase mode (default: "pixel")')
     parser.add_argument('--recount', type=int, default=1,
                         help='Random erase count (default: 1)')
-
+    parser.add_argument('--eval-crop-ratio', default=0.875, type=float, help="Crop ratio for evaluation")
     return parser.parse_args()
