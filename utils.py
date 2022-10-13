@@ -5,8 +5,8 @@ import math
 import warnings
 import torch
 import logging
-from PIL import ImageFilter, ImageOps
-import random
+
+
 def format_time(seconds):
     days = int(seconds / 3600/24)
     seconds = seconds - days*3600*24
@@ -194,3 +194,11 @@ def mixup_target(target, num_classes, lam=1., smoothing=0.0, device='cuda'):
     y1 = one_hot(target, num_classes, on_value=on_value, off_value=off_value, device=device)
     y2 = one_hot(target.flip(0), num_classes, on_value=on_value, off_value=off_value, device=device)
     return y1 * lam + y2 * (1. - lam)
+
+def get_dict():
+    from models.vit import vit_tiny
+    net1 = vit_tiny()
+    para1 = net1.state_dict()
+    for k, v in para1.items():
+        print(k)
+    return k

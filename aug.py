@@ -5,7 +5,7 @@ from PIL import Image
 import torch
 from torchvision import transforms
 
-from timm.data.transforms import _pil_interp, RandomResizedCropAndInterpolation, ToNumpy, ToTensor
+
 
 import numpy as np
 from torchvision import datasets, transforms
